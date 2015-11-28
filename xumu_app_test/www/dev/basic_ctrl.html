@@ -1,0 +1,20 @@
+<ons-page ng-controller="dev_basic_ctrl">
+<ons-toolbar>
+	<div class="left">
+		<ons-back-button></ons-back-button>
+	</div>
+  <div class="center">Basic Control</div>
+</ons-toolbar>
+	
+	<ons-list>
+		<ons-list-header>{{dev.brand}}#{{dev.type}} {{dev.port.P}} {{dev.port.I}}</ons-list-header>
+		
+		<ons-list-item ng-repeat="b in btns" modifier="tappable" >
+			<icon icon="{{b.icon}}"></icon>
+			{{b.label}}
+			<ons-switch ng-click="poweronoff(dev)" var="bc_power_sw"  modifier="list-item" ></ons-switch>
+		</ons-list-item>	
+		
+	</ons-list>
+	
+</ons-page>

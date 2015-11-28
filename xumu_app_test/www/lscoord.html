@@ -1,0 +1,15 @@
+<ons-page ng-controller="lscoord_ctrl">
+<ons-toolbar>
+	     <div class="left">
+     	<ons-back-button></ons-back-button> 
+     	</div>
+  <div class="center">List Coordinator</div>
+</ons-toolbar>
+
+<ons-list>
+	<ons-list-item modifier="chevron"  ng-repeat="item in dev  track by $index">
+		{{item.zigbee_device}} + {{ item.ip }}
+	</ons-list-item>
+</ons-list>
+
+</ons-page>

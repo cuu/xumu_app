@@ -1,0 +1,17 @@
+<ons-page ng-controller="pik_room_ctrl">
+<ons-toolbar>
+	     <div class="left">
+     	<ons-back-button></ons-back-button> 
+     	</div>
+  <div class="center">Pick a Room </div>
+</ons-toolbar>
+
+<ons-list>
+<ons-list-item ng-repeat="room in rooms" ng-click="pik_room(room)"  modifiter="tappable" >
+	
+	Room {{room.number}}
+</ons-list-item>
+
+</ons-list>
+
+</ons-page>

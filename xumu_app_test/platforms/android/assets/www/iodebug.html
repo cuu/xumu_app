@@ -1,0 +1,20 @@
+<ons-page ng-controller="iodebug_ctrl">
+<ons-toolbar>
+     <div class="left">
+     	<ons-back-button></ons-back-button>
+     	</div>	
+  <div class="center">IO TurnON/OFF</div>
+</ons-toolbar>
+<br />
+<label><h3>{{io_label}} </h3></label>
+<br /> 
+<ons-row style="margin-bottom:10px;">
+	<ons-col ng-repeat="btn in outputs">
+		<ons-button ng-if="btn.O==1" ng-click="toggle(btn);"  modifier="normal" style="border-radius:20px;box-shadow: 1px -1px 10px 3px orange; line-height:80px;font-size:40px;font-weight:bold;width:80px;height:80px;text-align:center;color:black;">{{btn.num}}</ons-button>
+		<ons-button ng-if="btn.O==0" ng-click="toggle(btn);"  modifier="light" style="	border-radius:20px;box-shadow:0; line-height:80px;font-size:40px;font-weight:bold; width:80px;height:80px;text-align:center;color:gray;">{{btn.num}}</ons-button>
+	</ons-col>
+</ons-row>
+
+<pre>
+
+</ons-page>

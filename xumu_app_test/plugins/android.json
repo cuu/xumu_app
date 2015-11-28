@@ -1,0 +1,47 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {
+            "res/xml/config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"UDPTransmit\"><param name=\"android-package\" value=\"edu.uic.udptransmit.UDPTransmit\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Hello\"><param name=\"android-package\" value=\"com.example.plugin.Hello\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"UDPServer\"><param name=\"android-package\" value=\"guu.udpserver.UDPServer\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "installed_plugins": {
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        },
+        "edu.uic.travelmidwest.cordova.udptransmit": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        },
+        "com.example.hello": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        },
+        "guu.cordova.udpserver": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        }
+    },
+    "dependent_plugins": {}
+}

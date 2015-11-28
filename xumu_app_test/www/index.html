@@ -1,0 +1,1591 @@
+<!doctype html>
+<html lang="en" ng-app="myApp">
+<head>
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+	
+  <meta charset="utf-8">
+  <title>Xumu</title>  
+  <link rel="stylesheet" href="styles/app.css"/>
+  <link rel="stylesheet" href="lib/onsen/css/onsenui.css">
+  <!--
+  <link rel="stylesheet" href="lib/onsen/css/onsen-css-components.css">
+	-->
+	<link rel="stylesheet" href="lib/onsen/css/onsen-css-components-sunshine-theme.css">
+
+	<script type="text/javascript" src="cordova.js"></script>
+
+  <script src="lib/onsen/js/angular/angular.js"></script>
+	<script src="lib/onsen/js/angular/angular-animate.js"></script>
+
+
+  <script src="js/d3.3.3.13.js"></script>
+  <script src="js/nv.d3.1.1.15b.js"></script>
+  <script src="js/angularjs-nvd3-directives.js"></script>
+
+
+  <link rel="stylesheet" type="text/css" href="styles/nv.d3.css">
+
+	<script src="js/jstorage.js"></script>
+	
+	<script src="js/raphael-2.1.4.min.js"></script>
+	<script src="js/justgage.js"></script>
+	<script src="js/ng-justgage.js"></script>
+	
+	<script src="js/snap.svg.js"></script>
+	
+	<script src="js/object_hash.js"></script>
+	
+  <script src="lib/onsen/js/onsenui.js"></script>    
+  <script src="js/app.js"></script> 
+	
+	<script src="js/air_condition_cmd_lst.js"></script> 
+  <script>
+	var db_log_num = 100; // log data array max length 
+	var w = window;
+	Array.prototype.remove = function(from, to) {
+  	var rest = this.slice((to || from) + 1 || this.length);
+  	this.length = from < 0 ? this.length + from : from;
+  	return this.push.apply(this, rest);
+	};
+
+	function dec_to_hex(d, padding) 
+	{
+    var hex = Number(d).toString(16);
+    padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
+
+    while (hex.length < padding) {
+        hex = "0" + hex;
+    }
+
+    return hex;
+	}
+
+	function ValidateIPaddress(ip)   
+	{  
+ 		if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip))  
+  	{  
+    	return (true)  
+  	}  
+		//alert("You have entered an invalid IP address!")  
+		return (false)  
+	} 
+
+	
+	function db_get(_key)
+	{
+		return JSON.parse( $.jStorage.get(_key,"{}") );
+	}
+	
+	function db_set(_key,_val)
+	{
+		return $.jStorage.set(_key,JSON.stringify(_val));
+	}
+	
+	function win_width()
+	{
+		return w.innerWidth || e.clientWidth || g.clientWidth;
+	}
+	
+	function win_height()
+	{
+		return 	w.innerHeight|| e.clientHeight|| g.clientHeight;
+	}
+	
+	function udp_debug(Str)
+	{
+		//if(ons.platform.isIOS() || ons.platform.isAndroid())
+		//alert("myApp.zigbee_device: "+ JSON.stringify(myApp.zigbee_device));
+		//udptransmit.quick("192.168.31.157",9998,"udp debug",false);
+				try
+				{
+					myApp.zigbee_coord.map(function(dev)
+					{
+						if(dev["ip"].indexOf("/")==0)
+						{
+							var ip= dev["ip"].substring(1);
+						}
+						
+						if( ValidateIPaddress(ip) )
+						{
+							//alert("valid ip:"+ip);
+							udptransmit.quick(ip,9998,Str,false);
+						}else
+						{
+							alert("ip not validate"+dev["ip"]);
+						}
+					});
+					
+				}catch(e)
+				{
+					alert(e.message());
+				}
+
+		
+		console.log(Str);
+		
+	}
+	
+	function debug(Str)
+	{
+		console.log(Str);
+	}
+	
+	function UDPTransmitterInitializationSuccess(success)
+	{
+		//alert(success);
+	
+	}
+	function UDPTransmitterInitializationError(error)
+	{
+			alert(error);
+	}
+
+	function UDPTransmissionSuccess(success)
+	{
+			//alert(success);
+	}
+	function UDPTransmissionError(error)
+	{
+		//alert(error);
+	}
+
+	function UDPServerInitiSuccess(success)
+	{	
+		//alert(success);
+	}
+	function UDPServerInitError(error)
+	{
+		alert(error);
+	}
+
+	function UDPGetSuccess(success)
+	{
+		//alert(success);// udpserver return json list
+		//{devices:[]}
+		//JSON.stringify(json_objec/array); to store them as string in local storage
+		//myApp.local_db[{"Mac".....},{"zigbee_device"...},.... ]
+		var keys=["Mac","zigbee_device"];
+		try 
+		{
+			var json = JSON.parse(success);
+			
+			myApp.local_db = json.devices;
+			myApp.zigbee_coord=[]; //clear everytimes
+			myApp.zigbee_route=[];// clear everytimes
+
+			myApp.local_db.map(function(item)
+			{
+				if(item[keys[0]]!=undefined)
+				{
+					myApp.zigbee_route.push(item);
+				}
+				
+				if(item[keys[1]]!=undefined)
+				{
+					myApp.zigbee_coord.push(item);
+				}				
+			});
+			
+			//debug("myApp.local_db: "+ JSON.stringify(myApp.local_db));
+			
+			myApp.rootScope.$broadcast("update_data");
+			//myApp.rootScope.$apply();
+		}
+		catch (err)
+		{
+			debug(err.message);
+		}
+
+	}
+	function UDPGetError(error)
+	{
+		alert(error);
+	}
+
+	function udp_server_get_msg()
+	{
+		
+		udpserver.getMessage();
+	}
+
+	function test(v)
+	{
+		myApp.zigbee_route=[{"Mac":"testmac","Saddr":"ac97","ip":"192.168.31.74","time":"2015 11 13","Temp":20}];
+		myApp.zigbee_route=[{"Mac":"testmac","Saddr":"ac97","ip":"192.168.31.74","time":"2015 11 13","Temp":22.60,"light":20,"Dust":[0.10,613.37],"Humidity":25.40}];
+		
+		myApp.rootScope.$broadcast("update_data");
+		//myApp.rootScope.$apply();//trigger the $digest every chain(scope) of angularjs
+	}
+	
+	myApp.pages = {}; // page logic controll
+	myApp.pages["page1"]= {}; //initiliazations
+	myApp.devices=[];
+	myApp.zigbee_coord=[]; ///coordinator
+	myApp.zigbee_route=[];
+	
+	myApp.coord_io = [{"num":1,"P":0,"I":1,"O":0},{"num":2,"P":0,"I":4,"O":0},{"num":3,"P":1,"I":3,"O":0},{"num":4,"P":1,"I":5,"O":0}];//io of coordinator
+	
+	
+	myApp.once_bind = function(_key,_func,_scope)
+	{
+		if(myApp.pages.page1[_key] == undefined)
+		{
+			myApp.pages.page1[_key] = _scope.$on(_key,_func);
+			
+		}else
+		{
+			myApp.pages.page1[_key]();// manually $off the motherfucking bitch $on
+			myApp.pages.page1[_key] = _scope.$on(_key,_func);
+		}
+	};
+	
+	myApp.init=function()
+	{
+		if($.jStorage.get("init", "false") == "false")
+		{
+			$.jStorage.set("init", "true");// only support string item
+			myApp.local_db = JSON.parse( $.jStorage.get("local_db","[]") );
+			myApp.devices = JSON.parse( $.jStorage.get("devices","[]") );
+			
+			if( ons.platform.isIOS() || ons.platform.isAndroid())
+			{  
+				udpserver.init();
+			}
+		}
+  }
+
+ myApp.service('udp_service', function() {
+    this.tags = {
+        a: true,
+        b: true
+    };
+
+    this.setFalseTag = function() {
+        alert("Within myService->setFalseTag");
+        this.tags.a = false;
+        this.tags.b = false;
+    };
+
+	});
+	
+myApp.service("popService", function(){
+  var sharedPopover;
+  var sharedPopoverPln;
+  var sharedBrand;
+  var sharedCoord;
+  var sharedRouter;
+  var sharedRoom;
+
+  var setRoom = function(obj)
+  {
+  	sharedRoom =obj;
+	};
+	var getRoom = function()
+	{
+		return sharedRoom;
+	};  
+	
+  var setBrand = function(obj)
+  {
+  	shareBrand =obj;
+	};
+	var getBrand = function()
+	{
+		return shareBrand;
+	};
+	
+  var setPopover = function(pop){
+    sharedPopover = pop;
+  };
+  
+  var getPopover = function(){
+    return sharedPopover;
+  };
+
+	
+  var setPopoverPln = function(pop){
+    sharedPopoverPln = pop;
+  };
+  
+  var getPopoverPln = function(){
+    return sharedPopoverPln;
+  };
+  
+  var setRouter = function(pop){
+    sharedRouter = pop;
+  };
+  
+  var getRouter= function(){
+    return sharedRouter;
+  }; 
+  
+  var setCoord = function(pop){
+    sharedCoord = pop;
+  };
+  
+  var getCoord= function(){
+    return sharedCoord;
+  };    
+  
+  return {
+    setPopover: setPopover,
+    getPopover: getPopover,
+    setPopoverPln: setPopoverPln,
+    getPopoverPln: getPopoverPln,    
+    setBrand:setBrand,
+    getBrand:getBrand,
+    setRouter:setRouter,
+    getRouter:getRouter,
+    setCoord:setCoord,
+    getCoord:getCoord,
+    setRoom:setRoom,
+    getRoom:getRoom,
+  };
+});
+
+	myApp.factory('d3', [function() {
+  	return d3;
+	}]);
+
+	myApp.factory('nv', [function() {
+  	return nv;
+	}]);
+
+
+
+myApp.directive('donutChart', ['d3', 'nv', function(d3, nv) {
+  return {
+    restrict: 'E',
+    scope: {
+      data: '=',
+      height: '@',
+      width: '@'
+    },
+    template: '<svg ng-attr-height="{{height}}" ng-attr-width="{{width}}"></svg>',
+    link: function(scope, element) 
+    {
+    	if(scope.width == undefined) scope.width =win_width();
+    	if(scope.height== undefined) scope.height=win_height();
+      var svg = element.find('svg'),
+        chart;
+     	  // Insert text into the center of the donut
+  		var center_text = function() 
+  		{
+      	var my_svg = d3.select(svg[0]);
+      	
+     		var donut = my_svg.selectAll("g.nv-slice").filter(
+        		function(d, i) {
+          	return i == 0;
+        	}
+      	);
+
+
+	       donut.insert("circle")
+   			.attr("cx", 0)
+   			.attr("cy", 0)
+   			.attr("r", 70)
+   			.attr("fill", "#f0f0f0") ;
+		
+      	// Insert first line of text into middle of donut pie chart
+      	donut.insert("text", "g")
+        	.text("Line One")
+       	 	.attr("class", "middle")
+        	.attr("text-anchor", "middle")
+        	.attr("dy", "-.55em")
+        	.style("fill", "#000");
+      		// Insert second line of text into middle of donut pie chart
+      	donut.insert("text", "g")
+        	.text("温度")
+        	.attr("class", "middle")
+        	.attr("text-anchor", "middle")
+        	.attr("dy", ".85em")
+        	.style("fill", "#000");
+
+
+  		};
+
+      var update = function() 
+			{
+			
+        d3.select(svg[0])
+          .datum(scope.data)
+          .transition().duration(350)
+          .call(chart)
+    			.call(center_text);
+
+				nv.utils.windowResize( chart );
+
+      };
+      
+      scope.$watch(
+      function() { return angular.toJson(scope.data); }, 
+      function() {
+        if (chart) {
+          update();
+        }
+      },true);
+      
+      scope.$on('chartloaded', update);
+     
+			nv.addGraph(function() {
+  			chart = nv.models.pieChart()
+      			.x(function(d) { return d.label })
+      			.y(function(d) { return d.value })
+      			.showLabels(true)     //Display pie labels
+      			.labelThreshold(.05)  //Configure the minimum slice size for labels to show up
+      			.labelType("all") //Configure what type of data to show in the label. Can be "key", "value" or "percent"						
+      			.showLegend(false)
+      			.tooltips(false)
+      			.color(["#965251", "#00b3ca", "#7dd0b6", "#e38690", "#ead98b"])
+      			.donut(true)          //Turn on Donut mode. Makes pie chart look tasty!
+      			.donutRatio(0.35)     //Configure how big you want the donut hole size to be.
+      			.height( win_height() )
+      			.width( win_width() )
+      			;
+
+        nv.utils.windowResize(function() 
+				{
+          chart.update()
+        });
+
+				scope.$emit('chartloaded');
+
+  			return chart;
+			});
+
+		}
+  }
+}]);
+
+myApp.directive('lineChart', ['d3', 'nv', function(d3, nv) {
+  return {
+    restrict: 'E',
+    scope: {
+      data: '=',
+      height: '@',
+      width: '@'
+    },
+    template: '<svg ng-attr-height="{{height}}" ng-attr-width="{{width}}"></svg>',
+    link: function(scope, element) 
+    {
+      var svg = element.find('svg'),
+        chart;
+      var update = function() 
+			{
+				
+        d3.select(svg[0])
+        	.attr("width",w.innerWidth || e.clientWidth || g.clientWidth)
+        	.attr("height",w.innerHeight|| e.clientHeight|| g.clientHeight)
+          .datum(scope.data)
+          .call(chart);
+				
+				nv.utils.windowResize( chart );
+      };
+      
+      scope.$watch(
+      function() { return angular.toJson(scope.data); }, 
+      function(new_val, old_val) 
+      {
+        if (chart) { 	
+          update();
+        }
+      },true);
+      
+      scope.$on('chartloaded', update);
+      
+      nv.addGraph(function() 
+      {
+        chart = nv.models.lineChart()
+          .showLegend(false)
+          .showYAxis(true)
+          .showXAxis(true)
+					//.height(parseInt(svg.attr("height")))
+					//.width( parseInt(svg.attr("width")));
+					.height(scope.height)
+					.width(scope.width);
+
+        chart.xAxis
+          .axisLabel('x')
+          .tickFormat(d3.format('.2f'));
+
+        chart.yAxis
+          .axisLabel('y')
+          .tickFormat(d3.format('.2f'));
+
+				
+        nv.utils.windowResize(function() 
+				{
+          chart.update()
+        });
+				
+
+        scope.$emit('chartloaded');
+        
+        return chart;
+      });
+    }
+  }
+}]);
+
+myApp.directive('pm25Chart', ['d3', 'nv', function(d3, nv) //extend as linechart
+{
+  return {
+    restrict: 'E',
+    scope: {
+      data: '=',
+      height: '@',
+      width: '@'
+    },
+    template: '<svg ng-attr-height="{{height}}" ng-attr-width="{{width}}"></svg>',
+    link: function(scope, element) 
+    {
+      var svg = element.find('svg'),
+        chart;
+      var update = function() 
+			{
+				
+        d3.select(svg[0])
+          .datum(scope.data)
+          .call(chart);
+				
+				nv.utils.windowResize( chart );
+      };
+      
+      scope.$watch(
+      function() { return angular.toJson(scope.data); }, 
+      function(new_val, old_val) 
+      {
+        if (chart) { 	
+          update();
+        }
+      },true);
+      
+      scope.$on('chartloaded', update);
+      
+      nv.addGraph(function() 
+      {
+        chart = nv.models.lineChart()
+          .showLegend(false)
+          .showYAxis(true)
+          .showXAxis(true)
+					//.height(parseInt(svg.attr("height")))
+					//.width( parseInt(svg.attr("width")));
+					.height(scope.height)
+					.width(scope.width);
+
+        chart.xAxis
+          .axisLabel('x')
+          .tickFormat(d3.format('.2f'));
+
+        chart.yAxis
+          .axisLabel('y')
+          .tickFormat(d3.format('.2f'));
+
+				
+        nv.utils.windowResize(function() 
+				{
+          chart.update()
+        });
+				
+
+        scope.$emit('chartloaded');
+        
+        return chart;
+      });
+    }
+  }
+}]);
+
+
+  myApp.controller("page1_ctrl",['$scope','$http','$timeout',function($scope,$http,$timeout)
+  {
+  	// Every room can bind a unique device with unique mac address
+  	// Multi rooms can bind the same unique device with unique mac address
+  	// examples mac address: "0016d330cc69"
+  	// Controll devices should not be too much,better to fill a list with 6s top most
+  	
+  	$scope.controller_mac = "0016d330cc69";//a real zigbee router's Mac address
+  	$scope.controller_mac = "4f903e03004b1200";
+  	
+  	$scope.room_id= $.jStorage.get("room_id",0);
+  	
+  	$scope.sensor_data = {"temp":{"v":0,"max":100},"humi":{"v":0,"max":100},"pm25":{"v":0,"max":1500},"comfort":{"v":0,"max":255},"light":{"v":0,"max":3000}};
+  	
+    $scope.update_data = function()
+    {
+    	try{
+    		var db;
+				myApp.zigbee_route.map(function(d)
+				{
+					$scope.sensor_data["temp"].v  =parseInt(d["Temp"]);
+					$scope.sensor_data["humi"].v  =parseInt(d["Humidity"]);
+					$scope.sensor_data["light"].v =parseInt(d["lighter"]);
+					if($scope.sensor_data["light"].v < 800)
+					{
+						$scope.sensor_data["light"].max= 600;
+					}else
+					{
+						$scope.sensor_data["light"].max =3000;
+					}
+					$scope.sensor_data["pm25"].v  = parseInt(d["Dust"][1]);
+										
+					$scope.sensor_data["comfort"].v= $scope.sensor_data.temp.v+$scope.sensor_data.humi.v+$scope.sensor_data.pm25.v;
+					
+					$scope.sensor_data["comfort"].v= $scope.sensor_data["comfort"].v/6.28;
+				
+				});
+			//zigbee.route
+    	}catch(err)
+    	{  
+      	debug(err.message); 
+    	}
+    	$scope.$apply();
+    };
+		
+		myApp.once_bind("update_data",$scope.update_data,$scope);
+		
+		$scope.$emit("update_data");
+		
+		$scope.graph = {"width": 365, "height":564};
+		$scope.circles = [
+    {'x': 115, 'y': 20, 'r':60},
+    {'x': 35, 'y': 160, 'r':40},
+    {'x': 55, 'y': 200, 'r':20},
+		];
+		
+		$scope.texts=[[0,55,"red","Hello"]];
+		
+		$scope.texts = $scope.texts.map(function(d)
+		{
+     	return {x: d[0], y: d[1],fill:d[2],txt:d[3] }; 
+    });
+    
+		$scope.test = function()
+		{
+			alert("test in page1_controller");
+		};
+		
+		$scope.load = function($done) // drag to refresh
+		{
+			$timeout(function()
+			{
+				$done();
+			}, 1000);
+		};
+		
+		$scope.test_udp_bcast=function()
+		{
+			//udptransmit.sendMessage("Hello from my mobile app.");
+			udpserver.getMessage();	
+			//ons.notification.alert({message:"test udp_bcast"});// did not work on 4.2
+			//alert("test udp_bcast");
+		};
+
+		$scope.swipeleft = function()
+		{
+			debug("page1 swiped left");
+		};
+		
+		$scope.set_room = function(id)
+		{
+			
+			$scope.room_id = $.jStorage.get("room_id");
+			
+   		$scope.data = [{
+      	key: 'Data',
+      	bar: true,
+      	values: [ [ 0,0] , [1,1 ],
+							 [3, 5 ], [4, 11], 
+							 [5, 19], [60,290] ]
+			}];
+			
+		
+			$timeout(function()
+			{
+				//myApp.rootScope.$apply();
+       	$scope.$apply();
+       	
+			});
+		};
+		
+		myApp.once_bind("update_page1",$scope.set_room,$scope); // left upper corner + button ,change room 
+
+		
+  }]);
+  
+	myApp.controller("menu_controller",function($scope,$timeout)
+	{
+		$scope.set_room = function(id)
+		{
+			$.jStorage.set("room_id",id);
+			myApp.rootScope.$broadcast("update_page1");
+			myApp.navi.popPage('menu.html');
+		};	
+	});
+
+  myApp.controller("page2_controller",['$scope','$http','$timeout',function($scope,$http,$timeout)
+  {
+  	console.log("page2_controller");
+  	$scope.clear_db_cache=function()
+  	{
+  		$.jStorage.flush();
+  		$.jStorage.deleteKey("local_db");
+  		myApp.local_db = JSON.parse( $.jStorage.get("local_db","{}") );
+  		alert("Cache cleared");
+  	}
+  }]);
+
+	myApp.controller("user_controller",function($scope,$timeout)
+	{
+	});
+	
+	 
+	myApp.controller("BodyController",function($scope,$timeout)
+	{
+	});
+
+	myApp.controller("pop_controller",function($scope,$timeout,popService)
+	{
+		$scope.hide_and_jump = function(page_url)// hide popover and navigator to the page_url
+		{
+			$scope.popover = popService.getPopover();    
+    	$scope.popover.hide();
+    	myApp.navi.pushPage(page_url);
+		}
+	});
+	
+	myApp.controller("pln_pop_ctrl",function($scope,$timeout,popService)
+	{
+		$scope.hide_and_jump = function(page_url)// hide popover and navigator to the page_url
+		{
+			$scope.popover = popService.getPopoverPln();    
+    	$scope.popover.hide();
+    	myApp.navi.pushPage(page_url);
+		}
+	});
+		
+	myApp.controller("dev_air_controller",function($scope,$timeout,popService)
+	{
+		$scope.brand = {"brand":"格力","type":1,"devtype":1,"router":{}};
+	
+		$scope.show_router = false;
+		
+		$scope.update = function()
+		{
+			$scope.show_router = true;
+			$scope.brand = popService.getBrand();
+			$scope.router = popService.getRouter() || {};
+			$scope.brand.router = $scope.router;
+			//$scope.$apply();
+		};
+		myApp.once_bind("update_dev_air",$scope.update,$scope);
+		
+		$scope.store = function()
+		{
+			
+			var found=false;var f2= false;
+			for(var i=0;i<myApp.devices.length;i++)
+			{
+				if(myApp.devices[i].name && myApp.devices[i].name==myApp.strings["air_condition"])
+				{
+					found = i;
+					break;
+				}
+			}
+		
+			if(found !== false && myApp.devices[found].devs)
+			{
+				for(var j=0;j<myApp.devices[found].devs.length;j++)
+				{
+					console.log( objectHash.MD5(myApp.devices[found].devs[j] ));
+					//console.log( objectHash.MD5($scope.brand));
+					if(myApp.devices[found].devs[j].brand==$scope.brand.brand && myApp.devices[found].devs[j].type == $scope.brand.type )
+					//if(objectHash.MD5(myApp.devices[found].devs[j]) == objectHash.MD5($scope.brand))
+					{
+						f2 = j;
+						console.log("device existed!,add skip!");
+						break;
+					}
+				}
+				
+				if(f2 === false)// device not existed in myApp.devices[??].devs[]
+				{
+					myApp.devices[found].devs.push($scope.brand);
+				}
+			}else
+			{
+				console.log("push a new record to myApp.devices[]");
+				//push a new record to myApp.devices[]
+				myApp.devices.push({"name":myApp.strings["air_condition"],"devs":[$scope.brand]});
+				
+			}
+			alert("Device added!");
+			myApp.navi.popPage("dev/air.html");
+			//store to $.jStorage
+			if(found == false || f2 == false)
+			{
+				$.jStorage.set("devices", JSON.stringify( myApp.devices));
+			}
+			console.log(myApp.devices);
+		}
+	});
+	
+	myApp.controller("dev_air_brand_controller",function($scope,$timeout,popService)
+	{
+		//all devices has a devtype
+		// devtype 1 == air condition
+		// devtype 2 == Anion
+		// devtype 3 == Humiditer
+		$scope.air_brands = myApp.air_cmd_lst;
+		
+		$scope.brands=[{"brand":"格力","type":0,"devtype":1},{"brand":"格力","type":1,"devtype":1},{"devtype":1,"brand":"格力","type":2},
+		{"devtype":1,"brand":"格力","type":3},{"devtype":1,"brand":"科龙","type":1},{"devtype":1,"brand":"科龙","type":2}];
+		
+		$scope.unexpand_str=myApp.strings["unexpand"];
+		
+		$scope.set_air_brand= function(brand_name,brand_num,b)
+		{
+			var bb={};
+			bb.brand=brand_name;
+			bb.type=parseInt(brand_num.substring(1));
+			bb.devtype=1;
+			
+			popService.setBrand(bb);
+			myApp.navi.popPage("dev/air_brand.html");
+			myApp.rootScope.$broadcast("update_dev_air");
+			
+			//$scope.air_brands.toggle_expand = function(brand,b);
+		};
+		
+		$scope.toggle_expand = function(item,b){
+			$scope.air_brands[item].expand = b; //toggle between true and false
+			console.log(b);
+		}
+		
+		
+	});
+	
+	myApp.controller("dev_ion_controller",function($scope,$timeout,popService)
+	{
+		$scope.brand = {"brand":"负离子","type":1,"devtype":2};
+		$scope.coord_io = myApp.coord_io;
+			
+		$scope.set_port=function(obj)
+		{
+			$scope.port = obj;
+			$scope.brand.port = obj;
+			console.log($scope.brand);
+		};
+		
+		$scope.store = function()
+		{
+			var found=false;var f2= false;
+			for(var i=0;i<myApp.devices.length;i++)
+			{
+				if(myApp.devices[i].name && myApp.devices[i].name==myApp.strings["anion"])
+				{
+					found = i;
+					break;
+				}
+			}
+		
+			if(found !== false && myApp.devices[found].devs)
+			{
+				for(var j=0;j<myApp.devices[found].devs.length;j++)
+				{
+					
+					//console.log( objectHash.MD5($scope.brand));
+					if(myApp.devices[found].devs[j].brand==$scope.brand.brand && myApp.devices[found].devs[j].type == $scope.brand.type )
+					//if(objectHash.MD5(myApp.devices[found].devs[j]) == objectHash.MD5($scope.brand))
+					{
+						f2 = j;
+						console.log("device existed!,add skip!");
+						break;
+					}
+				}
+				
+				if(f2 === false)// device not existed in myApp.devices[??].devs[]
+				{
+					myApp.devices[found].devs.push($scope.brand);
+				}
+			}else
+			{
+				console.log("push a new record to myApp.devices[]");
+				//push a new record to myApp.devices[]
+				myApp.devices.push({"name":myApp.strings["anion"],"devs":[$scope.brand]});
+				
+			}
+			alert("Device added!");
+			myApp.navi.popPage("dev/ion.html");
+			//store to $.jStorage
+			if(found == false || f2 == false)
+			{
+				$.jStorage.set("devices", JSON.stringify( myApp.devices));
+			}
+			console.log(myApp.devices);
+		}	
+		
+			
+	});
+	
+	myApp.controller("dev_hum_controller",function($scope,$timeout,popService)
+	{
+		$scope.brand = {"brand":"加湿器","type":1,"devtype":3};
+		
+		$scope.store = function()
+		{
+			var found=false;var f2= false;
+			for(var i=0;i<myApp.devices.length;i++)
+			{
+				if(myApp.devices[i].name && myApp.devices[i].name==myApp.strings["humi"])
+				{
+					found = i;
+					break;
+				}
+			}
+		
+			if(found !== false && myApp.devices[found].devs)
+			{
+				for(var j=0;j<myApp.devices[found].devs.length;j++)
+				{
+					
+					//console.log( objectHash.MD5($scope.brand));
+					if(myApp.devices[found].devs[j].brand==$scope.brand.brand && myApp.devices[found].devs[j].type == $scope.brand.type )
+					//if(objectHash.MD5(myApp.devices[found].devs[j]) == objectHash.MD5($scope.brand))
+					{
+						f2 = j;
+						console.log("device existed!,add skip!");
+						break;
+					}
+				}
+				
+				if(f2 === false)// device not existed in myApp.devices[??].devs[]
+				{
+					myApp.devices[found].devs.push($scope.brand);
+				}
+			}else
+			{
+				console.log("push a new record to myApp.devices[]");
+				//push a new record to myApp.devices[]
+				myApp.devices.push({"name":myApp.strings["humi"],"devs":[$scope.brand]});
+				
+			}
+			alert("Device added!");
+			myApp.navi.popPage("dev/hum.html");
+			//store to $.jStorage
+			if(found == false || f2 == false)
+			{
+				$.jStorage.set("devices", JSON.stringify( myApp.devices));
+			}
+			
+			console.log(myApp.devices);
+		}
+	});
+		
+
+	myApp.controller("lsdev_ctrl",function($scope,$timeout,popService)
+	{
+		$scope.devices= myApp.devices;
+		
+		$scope.del_dev=function(dev_cls_name,obj,idx)
+		{
+			//compare brand and type ,
+			//myApp.devices[{"name":dev_cls_name,"devs":[]},etc];
+			console.log(dev_cls_name);
+			for(var i=0;i< myApp.devices.length;i++)
+			{
+				if(myApp.devices[i].name == dev_cls_name)
+				{
+					for(var j=0;j<myApp.devices[i].devs.length;j++)
+					{
+						if(myApp.devices[i].devs[j].brand == obj.brand && myApp.devices[i]["devs"][j].type == obj.type)
+						{
+							myApp.devices[i]["devs"].splice(j,1); 
+							console.log("delete dev idx:"+j);
+						}
+					}
+					break;
+				}
+			}
+			console.log(myApp.devices);
+		};
+		
+		$scope.dev_basic_control = function(obj)
+		{
+			//send a command to set air condition command
+			//
+			myApp.navi.pushPage("dev/basic_ctrl.html",{dev:obj});
+			console.log(obj);
+		};
+		
+	});
+	
+	myApp.controller("dev_basic_ctrl",function($scope,$timeout,popService)
+	{
+		$scope.navi = myApp.navi;
+		$scope.dev = $scope.navi.getCurrentPage().options.dev || {"devtype":9999 };
+		
+		$scope.btns =[{"label":"POWER","icon":"ion-power"}
+										];		
+		$scope.power_sw=true;								
+		//$scope.bc_power_sw.setChecked($scope.power_sw);
+		
+		$scope.counter = 0;
+		$scope.cmd=["02"];
+		
+		if($scope.dev.devtype == 1)
+		{
+			if( myApp.air_cmd_lst[$scope.dev.brand] != undefined)
+			{
+				var xor;
+				var cmd = myApp.air_cmd_lst[$scope.dev.brand]["#"+$scope.dev.type][1];
+				console.log("cmd: "+cmd);
+				cmd = cmd.split(" ");
+				cmd.map(function(d)
+				{
+					$scope.cmd.push(d);
+				});
+				
+				$scope.cmd = $scope.cmd.map(function(d)
+				{
+					return parseInt(d,16);
+				});
+				$scope.cmd.push( $scope.counter );
+				
+				xor = $scope.cmd[0];
+				for(var i=1;i<$scope.cmd.length;i++)
+				{
+					xor = xor ^ $scope.cmd[i];
+				}				
+				$scope.cmd.push(xor);
+				$scope.cmd = $scope.cmd.map(function(d)
+				{
+					return dec_to_hex(d);
+				});
+				
+				var ret = {};
+				ret["re"]={};
+				ret["re"]["ffff"] = {"irm":$scope.cmd.join("")};		
+				udp_debug(JSON.stringify(ret));
+				
+			}
+			
+		}
+		
+		$scope.aircmd = function(obj,onoff)
+		{
+				var of=0xff;
+				if(onoff=="on") of=0xff;
+				if(onoff=="off") of=0x00;
+				
+				$scope.cmd=[0x04,of,0x00,$scope.counter];
+				xor = $scope.cmd[0];
+				for(var i=1;i<$scope.cmd.length;i++)
+				{
+					xor = xor ^ $scope.cmd[i];
+				}
+				$scope.cmd.push(xor);
+				$scope.cmd = $scope.cmd.map(function(d)
+				{
+					return dec_to_hex(d);
+				});
+				var ret = {};
+				ret["re"]={};
+				ret["re"]["ffff"] = {"irm":$scope.cmd.join("")};		
+				udp_debug(JSON.stringify(ret));
+				$scope.counter++;						
+		};
+		
+		$scope.iocmd = function(obj,onoff)
+		{
+			//"zio"
+			var opera=0;
+			if(onoff=="on") opera = 1;
+			var port =obj.port;
+			
+			var zio={"zio":{"p":port.P,"i":port.I,"o":opera}};
+			udp_debug(JSON.stringify(zio));
+			
+		};
+		
+		
+		$scope.poweronoff = function(obj)
+		{
+			if($scope.bc_power_sw.isChecked())
+			{
+				if(obj.devtype == 1)
+				{
+					$scope.aircmd(obj,"on");
+				}else
+				{
+					$scope.iocmd(obj,"on");
+				}
+				$scope.bc_power_sw.setChecked(false);
+			}else
+			{
+				$scope.bc_power_sw.setChecked(true);
+				
+				if(obj.devtype == 1)
+				{
+					$scope.aircmd(obj,"off");
+				}else
+				{
+					$scope.iocmd(obj,"off");
+				}				
+			}		
+		};
+		
+	});	
+		
+	myApp.controller("lspln_controller",function($scope,$timeout,popService)
+	{
+		
+		
+	});		
+
+	myApp.controller("pln_loop_ctrl",function($scope,$timeout,popService)
+	{
+		
+	});
+	
+	myApp.controller("pln_one_ctrl",function($scope,$timeout,popService)
+	{
+		$scope.strings = myApp.strings;
+		$scope.store=function()
+		{
+			myApp.navi.popPage("pln/one.html");
+		};
+		
+	});
+	
+	
+			
+	myApp.controller("irlearn_ctrl",function($scope,$timeout,popService)
+	{
+		
+		$scope.buttons=[[1,2,3],[4,5,6],[7,8,9]];
+		$scope.up_btn = 10; // up
+		$scope.dn_btn = 11; // down
+		$scope.le_btn = 12; // left
+		$scope.ri_btn = 13; // right
+		$scope.power_btn = 14;
+		$scope.hm_btn = 15;
+		$scope.me_btn = 16;
+		$scope.ok_btn = 17;
+		$scope.tv_btn = 18;
+		$scope.bk_btn = 19;
+		
+		$scope.hex= [0x88,0x00,0x00,0x00];// data format come from manufactory
+		$scope.stat = 2;// 1 for learing 2 for sending
+		//$scope.ctrl_mac = "4f903e03004b1200";
+		$scope.router_node = popService.getRouter() || {};
+		$scope.ctrl_mac = $scope.router_node["Mac"] ||"0000000000";
+		$scope.saddr=$scope.router_node["Saddr"] || "FFFF";
+		
+		$scope.learn_str = myApp.strings["start_irlearn"];
+		$scope.pick_str  = myApp.strings["pick_irlearn_dev"];
+		
+		console.log(JSON.stringify($scope.router_node));
+		
+		$scope.get_saddr= function()
+		{
+			//refresh self every time by lsroute.html
+			$scope.router_node = popService.getRouter() || {};
+			$scope.ctrl_mac = $scope.router_node["Mac"] ||"0000000000";
+			$scope.saddr=$scope.router_node["Saddr"] || "FFFF";			
+		};
+		
+		$scope.start_learn=function()
+		{
+			$scope.stat =1;
+			if($scope.saddr=="FFFF")
+			{
+				myApp.navi.pushPage("lsroute.html",{mode:"check",from:"irlearn"});
+			}else
+			{
+				// has a saddr ,toggle learn stat
+				$scope.stat = ($scope.stat ==1)?2:1;
+				
+			}
+			
+		};
+		$scope.pick_device=function()
+		{
+			$scope.stat =1;
+			myApp.navi.pushPage("lsroute.html",{mode:"check",from:"irlearn"});
+		};
+		$scope.ir_send=function(ir_num)
+		{
+			var xor;
+			//udp send a ir learning command
+			$scope.hex[0]=0x86;
+			
+			ir_num = parseInt(ir_num);
+			$scope.hex[1] = ir_num;
+			xor = $scope.hex[0];
+			for(var i=1;i<$scope.hex.length;i++)
+			{
+				xor = xor ^ $scope.hex[i];
+			}
+			var roots= $scope.hex.map(function(d) { return dec_to_hex(d); } );
+			var saddr = $scope.saddr;
+			var ret = {};
+			ret["re"]={};
+			ret["re"][saddr] = {"irm":roots.join("")+dec_to_hex(xor) };
+			
+			//udptransmit.quick("192.168.31.157",9998,JSON.stringify(ret),false);
+			udp_debug(JSON.stringify(ret));
+			//console.log();
+			
+		};
+								
+		$scope.ir_learn=function(ir_num)
+		{
+			var xor;
+			//udp send a ir learning command
+		
+			$scope.hex[0] = 0x88;
+			ir_num = parseInt(ir_num);
+			$scope.hex[1] = ir_num;
+			xor = $scope.hex[0];
+			for(var i=1;i<$scope.hex.length;i++)
+			{
+				xor = xor ^ $scope.hex[i];
+			}
+			var roots= $scope.hex.map(function(d) { return dec_to_hex(d); } );
+			var saddr = $scope.saddr;
+			var ret = {};
+			ret["re"]={};
+			ret["re"][saddr] = {"irm":roots.join("")+dec_to_hex(xor) };
+			
+			console.log(JSON.stringify(ret));
+			//udptransmit.quick("192.168.31.157",9998,JSON.stringify(ret),false);
+						
+			//console.log("{\"irm\":\""+roots.join("") +dec_to_hex(xor)+"\"}");
+			
+			$scope.stat = 2;
+			udp_debug(JSON.stringify(ret));
+		};
+		
+		myApp.once_bind("update_irlearn",$scope.get_saddr,$scope);
+	});		
+
+	myApp.controller("iodebug_ctrl",function($scope,$timeout,popService)
+	{
+		//P is IO group
+		//I is the number in that group
+		$scope.outputs = myApp.coord_io;
+		$scope.tng = 0;
+		$scope.io_label="Click to Toggle IO ";
+		$scope.toggle=function(obj)
+		{
+			$scope.outputs=$scope.outputs.map(function(item)
+			{
+				if(item.P==obj.P && item.I==obj.I)
+				{
+					item.O^=1;
+					obj.O =item.O;
+				}
+				return item;
+			});
+			
+			var zio = {};
+			zio["zio"]={"p":obj.P,"i":obj.I,"o":obj.O};
+			
+			if(zio["zio"].o==1)
+			{
+				$scope.io_label = obj.num +" ON ";
+			}else
+			{
+				$scope.io_label = obj.num +" OFF ";
+			}
+			
+			udp_debug(JSON.stringify(zio));
+			
+		};	
+	});	
+		
+	myApp.controller("lscoord_ctrl",function($scope,$timeout,popService)
+	{	
+		$scope.dev= myApp.zigbee_coord;
+		
+	});
+	
+	myApp.controller("lsroute_ctrl",function($scope,$timeout,popService)
+	{	
+		$scope.dev= myApp.zigbee_route;
+		$scope.navigator = myApp.navi;
+		$scope.mode = myApp.navi.getCurrentPage().options.mode || "normal";
+		$scope.from = myApp.navi.getCurrentPage().options.from || "";
+		
+		$scope.set_router= function(obj)
+		{
+			popService.setRouter(obj);
+			//$scope.navigator.popPage("lsroute.html");
+			//myApp.rootScope.$broadcast("update_ir_router");
+			if($scope.from != "")
+			myApp.rootScope.$broadcast("update_"+$scope.from);
+			
+		};
+		
+		console.log("lsroute mode: " + $scope.mode);
+	});
+	
+	myApp.controller("pik_room_ctrl",function($scope,$timeout,popService)
+	{	
+			$scope.rooms = [{"number":0},{"number":1}];
+			$scope.from = myApp.navi.getCurrentPage().options.from || "";
+			
+			$scope.pik_room = function(obj)
+			{
+				popService.setRoom(obj);
+				myApp.navi.popPage("pik_room.html");
+				
+				if($scope.from != "")
+				myApp.rootScope.$broadcast("update_dev_"+$scope.from);
+			};
+			
+	});		
+//-------------------------------------------------------------------------------------	
+  myApp.run(function($rootScope, $location)
+  {
+		$rootScope.on_resume = function()
+		{
+			//ons.notification.alert({message:"on_resume"});
+			//alert("I am back");
+			if( $.jStorage.get("init", "false")  == "false")
+			{
+				myApp.init();
+			}
+		};
+
+		$rootScope.on_pause = function()
+		{
+			//alert("I
+			$.jStorage.set("init","false");
+			$.jStorage.set("local_db", JSON.stringify( myApp.local_db));
+			
+			debug("I am paused");
+			udptransmit.on_pause();
+			udpserver.on_pause();
+		};
+		
+    ons.ready(function() 
+    {
+ 			document.addEventListener("resume", $rootScope.on_resume, false);
+			document.addEventListener("pause", $rootScope.on_pause, false);// background task
+			
+			$.jStorage.set("init","false"); // if reload pages, reset "init"
+			myApp.init();
+    	//hello.greet("World", $rootScope.success, $rootScope.failure);
+			myApp.navi.on('postpush', function(event) 
+			{
+      });
+      myApp.navi.on('postpop', function(event) {
+      });
+      
+      ons.createPopover('popover.html').then(function(popover) 
+      {
+         $rootScope.popover = popover;
+      }); 
+
+      ons.createPopover('popover_pln.html').then(function(popover) 
+      {
+         $rootScope.popoverPln = popover;
+      });      
+      myApp.rootScope = $rootScope;    
+    });
+		
+	});
+	
+	
+	
+  </script>
+ 	<script src="js/plan_controller.js"></script>
+ 	<script src="js/cao_controller.js"></script>
+  <style>
+    ons-carousel-item {
+      display: table;
+      text-align: center;
+    }
+    .guu-item-label {
+      display: table-cell;
+      vertical-align: top;
+      color: white;
+      line-height: 1;
+      
+      font-weight: bold;
+    }
+		.guu-item-label p
+		{
+			font-size:12px;
+		}
+    .cover-label {
+      text-align: center;
+      position: absolute;
+      left: 0px;
+      width: 100%;
+      bottom: 10px;
+      color: white;
+    }
+
+    .list-item {
+      padding: 0;
+      height: 72px;
+    }
+
+    .list-action-menu {
+      
+      background-color: #aaa;
+      color: white;
+      padding: 0 12px;
+      box-sizing: border-box;
+      line-height: 72px;
+    }
+    .list-action-menu:active {
+      background-color: #666;
+    }
+
+    .list-action-item {
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+
+    .name {
+      margin-top: 10px;
+      line-height: 1.2;
+    }
+    .desc {
+      line-height: 1.2;
+      font-size: 14px;
+      color: #999;
+    }
+  .logo_word
+  {
+  	line-height:44px;
+  	padding-left:10px;
+  	font-weight:bold;
+  	font-family:arial;
+  }
+  .navigation-bar
+  {
+  	background:#333;
+  	color:#fff;
+		border-bottom:none;
+  }
+  .navigation-bar__title
+  {
+  	color:#fff;
+  }
+ 	.bottom-bar 
+ 	{
+ 		border-top:none;
+ 	}
+	ons-carousel-item
+	{
+		border:none;
+	}
+
+ons-button[modifier="material"] {
+
+  
+  
+  margin: 4px 4px 0 13px;
+}
+.brand_box
+{
+	border:1px solid #ccc;
+	border-radius:4px;
+	padding:10px;
+	text-align:center;
+	margin:0 auto;
+	cursor:pointer;
+	width: 100px;
+	height: 40px;
+	float: left;
+	margin-right: 10px;
+	vertical-align: middle;
+	line-height: 40px;	
+	margin-bottom:10px;
+}
+
+.list_item_icon
+{
+width: 30px;font-size: 25px;line-height: 20px;	
+}
+	</style>
+ 
+</head>
+<body>
+
+<ons-navigator var="myApp.navi">
+<ons-page> 
+  <ons-tabbar var="tabbar" >
+    <ons-tab page="room0.html" active="true"
+    	icon="ion-home"
+    	label="Home"
+    >
+    </ons-tab> 
+    <ons-tab
+    	icon="ion-playstation"
+    	label="策略"
+    	page="page4.html"
+    >
+    </ons-tab>
+    <ons-tab
+    	page="page6.html"
+    	icon="ion-network"
+    	label="操作"
+   	>
+    </ons-tab>
+    <ons-tab
+      icon="ion-ios-cog-outline"
+      label="设置"      
+      page="page2.html">
+    </ons-tab>
+    <ons-tab
+    	icon="ion-social-github-outline"
+    	label="用户"
+    	page="page5.html">
+    </ons-tab>      
+    <!--
+    <ons-tab
+      icon="ion-ios-cog"
+      label="Settings"
+      page="page3.html"></ons-tab>
+    -->
+  </ons-tabbar>
+</ons-page>
+</ons-navigator>
+
+
+
+<script type="text/ons-template" id="popover.html">
+  <ons-popover cancelable style="width:auto;">
+
+<ons-list ng-controller="pop_controller">
+	<ons-list-item  modifier="chevron" ng-click="hide_and_jump('dev/air.html');">Air condition</ons-list-item>
+	<ons-list-item  modifier="chevron" ng-click="hide_and_jump('dev/ion.html')">Anion</ons-list-item> 
+	<ons-list-item  modifier="chevron" ng-click="hide_and_jump('dev/hum.html')">Humiditer</ons-list-item> 
+</ons-list>	
+
+
+  </ons-popover>
+</script>
+
+
+<script type="text/ons-template" id="popover_pln.html">
+  <ons-popover cancelable style="width:auto;">
+
+<ons-list ng-controller="pln_pop_ctrl">
+	<ons-list-item  modifier="chevron" ng-click="hide_and_jump('pln/loop.html');">Loop event</ons-list-item>
+	<ons-list-item  modifier="chevron" ng-click="hide_and_jump('pln/one.html')">One time Event</ons-list-item> 
+</ons-list>	
+
+
+</ons-popover>
+  
+</script>
+
+</body>
+</html>

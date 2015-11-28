@@ -1,0 +1,29 @@
+
+
+<ons-page ons-postchange="onPopPost($event)"  >
+	<ons-pull-hook ng-action="load($done)" var="loader">
+		<span ng-switch="loader.getCurrentState()">
+			<span ng-switch-when="initial">
+				<ons-icon size="35px" icon="ion-arrow-down-a"></ons-icon> Pull down to refresh</span>
+			<span ng-switch-when="preaction"><ons-icon size="35px" icon="ion-arrow-up-a"></ons-icon> Release to refresh</span>
+			<span ng-switch-when="action"><ons-icon size="35px" spin="true" icon="ion-load-d"></ons-icon> Loading data...</span>
+		</span>
+		</ons-pull-hook>
+	
+      <ons-toolbar>
+        <div class="left logo_word">Xumu</div>
+        <div class="right">
+					<ons-toolbar-button modifier="border" ng-click="myApp.navi.pushPage('menu.html')">
+						<ons-icon icon="ion-navicon" style="font-size: 32px"></ons-icon>
+					</ons-toolbar-button>
+				</div>
+      </ons-toolbar>
+			
+			<ons-list>
+				<ons-list-item ng-click="myApp.navi.pushPage('room0.html')" modifier="chevron">ROOM 0</ons-list-item>
+			</ons-list>	
+
+			
+</ons-page>
+
+

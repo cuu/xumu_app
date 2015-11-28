@@ -1,0 +1,23 @@
+<ons-page ng-controller="user_controller">
+<ons-toolbar>
+  <div class="center">About you</div>
+</ons-toolbar>
+
+<ons-list>
+	<ons-list-item  modifier="tappable">
+<ons-row>
+	<ons-col>
+	<div>
+		<ons-icon icon="ion-person" style="margin:5px;padding:5px;border:1px solid #ccc;font-size:80px;"></ons-icon>
+		
+	</div>
+	</ons-col>
+	
+</ons-row>		
+</ons-list-item>
+
+	<ons-list-header></ons-list-header>
+	<ons-list-item ng-click="myApp.navi.pushPage('abt_app.html')" modifier="chevron"><ons-icon icon="ion-quote" class="list_item_icon"></ons-icon>About app</ons-list-item> 
+</ons-list>	
+
+</ons-page>

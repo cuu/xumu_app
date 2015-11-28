@@ -1,0 +1,52 @@
+<ons-page ng-controller="lspln_controller">
+<ons-toolbar>
+	     <div class="left">
+     	<ons-back-button></ons-back-button> 
+     	</div>
+  <div class="center">List all plan</div>
+</ons-toolbar>
+
+<!--
+in openwrt side, process of newlisp will deal the json data as crontab tasks
+all syntax like crontab, minutes minimal
+m h dom mon dow command
+m=minutes
+h=hour
+dom = day of month
+mon = month
+dow = day of week
+
+minute 	0-59
+hour 	0-23
+day of month 	1-31
+month 	1-12 (or names; Jan,Feb,Mar,Apr,May,Jun,Jul,Arg,Nov,Oct,Dec,)
+day of week 	0-7 (0 or 7 is Sunday, or use names; Mon,Tue,Wed,Thu,Fri,Sat,Sun)
+
+eg: * * * * * tasks
+
+[{"name":"auto plans","plns":[{"type":1},...]},
+{"name":"once plans","plns":[{"type":?,"start":?,"end":?,"did":true},....]}]
+
+once plan include delay and ir trigger plans
+auto plans will trigger once in every loop of confirmations of conditions
+-->
+<!--	
+	<ons-list ng-repeat="item in devices  track by $index">
+  	<ons-list-header>{{item.name}}</ons-list-header>
+  	
+  	<ons-list-item modifier="chevron" ng-repeat="dev in item.devs">
+  		
+         <ons-carousel style="height: 44px; width: 100%" swipeable initial-index="1" auto-scroll>
+          <ons-carousel-item>
+            <a href="#">Delete</a>
+          </ons-carousel-item>
+          <ons-carousel-item>
+           {{dev.brand}}#{{dev.type}}
+          </ons-carousel-item>
+        </ons-carousel>
+        
+  	</ons-list-item>
+	</ons-list>
+-->
+
+</ons-page>

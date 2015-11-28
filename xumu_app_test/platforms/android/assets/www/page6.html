@@ -1,0 +1,28 @@
+<ons-page ng-controller="cao_controller">
+<ons-toolbar>
+  <div class="center">Operation</div>
+</ons-toolbar>
+
+<ons-list>
+	<ons-list-item id="show_add_a_device" ng-click="add_a_device('#show_add_a_device');" modifier="chevron"><ons-icon class='list_item_icon'  icon="ion-ios-plus-outline"></ons-icon>Add a Device</ons-list-item>
+	<ons-list-item ng-click="myApp.navi.pushPage('lsdev.html')" modifier="chevron"><ons-icon class='list_item_icon'  icon="ion-ios-list-outline"></ons-icon>Device list</ons-list-item> <!-- controll them, too -->
+	<ons-list-header></ons-list-header>
+	<ons-list-item modifier="chevron" ng-click="myApp.navi.pushPage('irlearn.html')" >
+		<ons-icon class='list_item_icon' icon="ion-ios-calculator-outline"></ons-icon>IR Learn
+	</ons-list-item>
+	<ons-list-header></ons-list-header>
+	<ons-list-item modifier="chevron" ng-click="myApp.navi.pushPage('iodebug.html')" >
+		<ons-icon class='list_item_icon' icon="ion-android-hand"></ons-icon>IO Debug
+	</ons-list-item>
+	
+	<ons-list-header>Zigbee</ons-list-header>
+	<ons-list-item modifier="chevron" ng-click="myApp.navi.pushPage('lscoord.html')" >
+		Coordinator
+	</ons-list-item>
+	<ons-list-item modifier="chevron" ng-click="myApp.navi.pushPage('lsroute.html')" >
+		Router
+	</ons-list-item>	
+	
+</ons-list>	
+
+</ons-page>

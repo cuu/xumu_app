@@ -1,0 +1,21 @@
+<ons-page ng-controller="page2_controller">
+<ons-toolbar>
+  <div class="center">Simple Configuration</div>
+</ons-toolbar>
+
+    <ons-list>
+      <ons-list-item><ons-icon icon="ion-levels" class="list_item_icon"></ons-icon>Receive broadcast
+      <ons-switch var="bcast_switch" modifier="list-item" checked></ons-switch></ons-list-item>
+      <ons-list-item><ons-icon icon="ion-social-rss" class="list_item_icon"></ons-icon>Udp debug
+      <ons-switch var="bcast_switch" modifier="list-item" checked></ons-switch></ons-list-item>	
+      <ons-list-item modifier="chevron" ng-click="clear_db_cache();"><ons-icon class="list_item_icon" icon="ion-social-designernews"></ons-icon>Clear data cache</ons-list-item>		
+    </ons-list>
+	<br />
+	
+	<ons-list>
+  	<ons-list-header>InorOut of House?</ons-list-header>
+  	<ons-list-item modifier="chevron" ng-click="myApp.navi.pushPage('wifi.html')"><ons-icon class="list_item_icon" icon="ion-wifi"></ons-icon>Remember wifi as House wifi</ons-list-item>
+  	
+	</ons-list>
+
+</ons-page>

@@ -1,0 +1,28 @@
+<ons-page ng-controller="dev_air_controller">
+<ons-toolbar>
+	     <div class="left">
+     	<ons-back-button></ons-back-button> 
+     	</div>
+  <div class="center">Add a Air condition</div>
+</ons-toolbar>
+
+<h1>Air condition</h1>
+
+<ons-button ng-click="myApp.navi.pushPage('dev/air_brand.html');" >Pick a band: </ons-button>
+<label>{{brand.brand}}#{{brand.type}}</label>
+<br /><br />
+
+<div ng-show="show_router">
+<ons-button ng-click='myApp.navi.pushPage("lsroute.html",{mode:"check",from:"dev_air"});' >Pick the target router: </ons-button>
+<label>Target Router: {{router.Mac}} + {{router.Saddr}}</label>
+</div>
+
+<br />
+
+
+<ons-bottom-toolbar style='text-align:right'>
+  <ons-button ng-click="store()"><ons-icon icon="ion-checkmark-circled"></ons-icon></ons-button> &nbsp;&nbsp;
+  <ons-button ng-click="myApp.navi.popPage('dev/air.html');"><ons-icon icon="ion-close-circled"></ons-icon></ons-button>
+</ons-bottom-toolbar>
+
+</ons-page>

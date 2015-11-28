@@ -1,0 +1,31 @@
+<ons-page  ng-controller="dev_ion_controller">
+<ons-toolbar>
+	     <div class="left">
+     	<ons-back-button></ons-back-button> 
+     	</div>
+  <div class="center">Add a anion generator</div>
+</ons-toolbar>
+
+<h1>A Anion</h1>
+<ons-button >Brand: </ons-button>
+<label>Anion</label>
+<br /><br />
+
+<ons-list>
+        <ons-list-header>On which port:</ons-list-header>
+        <ons-list-item   ng-repeat="port in coord_io track by $index" modifier="tappable" ng-click="set_port(port)" >
+          <label class="radio-button radio-button--list-item">
+            <input type="radio" name="a" >
+            <div class="radio-button__checkmark radio-button--list-item__checkmark"></div>
+            PORT:{{$index}}
+          </label>
+        </ons-list-item>
+</ons-list>
+
+
+<ons-bottom-toolbar style='text-align:right'>
+  <ons-button ng-click="store()"><ons-icon icon="ion-checkmark-circled"></ons-icon></ons-button> &nbsp;&nbsp;
+  <ons-button ng-click="myApp.navi.popPage('dev/ion.html');"><ons-icon icon="ion-close-circled"></ons-icon></ons-button>
+</ons-bottom-toolbar>
+
+</ons-page>

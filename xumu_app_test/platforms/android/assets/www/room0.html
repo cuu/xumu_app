@@ -1,0 +1,102 @@
+<ons-page ng-controller="page1_ctrl" >
+
+    <ons-toolbar>
+     <div class="left">
+     	<!--<ons-back-button></ons-back-button> -->
+     	</div>
+      <div class="center">Room <span ng-bind="room_id"></span></div>
+        
+        <div class="right">
+					<ons-toolbar-button modifier="border" ng-click="myApp.navi.pushPage('menu.html')">
+						<ons-icon icon="ion-navicon" style="font-size: 32px"></ons-icon>
+					</ons-toolbar-button>
+				</div>
+				
+    </ons-toolbar>
+
+    <ons-carousel swipeable overscrollable auto-scroll fullscreen auto-refresh auto-scroll-ratio="0.2" var="carousel">
+      <ons-carousel-item style="background-color:#fff;">
+        <div class="guu-item-label" style="overflow:scroll;height:100%;">
+    <!--  		
+    <line-chart
+            data="data"
+            id="exampleId"
+            showXAxis="true"
+            showYAxis="true"
+            tooltips="true"
+            
+          
+            interactive="false"
+            >
+    </line-chart>
+		-->
+			<ons-row>
+				<ons-col>
+					<just-gage style="height:100px;width:100px;display:block;margin:0 auto;" id="temp_gage" class="" min=0 max=sensor_data.temp.max value="sensor_data.temp.v" title="Temp"></just-gage>
+				</ons-col>
+				<ons-col>
+					<just-gage style="height:100px;width:100px;display:block;margin:0 auto;" id="humi_gage" class="" min=0 max=sensor_data.humi.max value=sensor_data.humi.v title="Humi"></just-gage>
+				</ons-col>
+			</ons-row>
+			
+			<ons-row>
+				<div style="width:200px;height:170px;margin:0 auto;text-align:center;">
+					<just-gage id="comfort_gage" class="someClass" min=0 max=sensor_data.comfort.max value=sensor_data.comfort.v title="Comfort"></just-gage>
+				</div>
+			</ons-row>
+			
+			<ons-row>
+				<ons-col>
+					<just-gage style="height:100px;width:100px;display:block;margin:0 auto;" id="pm25_gage" class="" min=0 max=sensor_data.pm25.max value=sensor_data.pm25.v title="PM2.5"></just-gage>
+				</ons-col>
+				<ons-col>
+					<just-gage style="height:100px;width:100px;display:block;margin:0 auto;" id="light_gage" class="" min=0 max=sensor_data.light.max value=sensor_data.light.v title="Light"></just-gage>
+				</ons-col>
+			</ons-row>
+			
+        </div>
+
+      </ons-carousel-item>
+      <ons-carousel-item>
+        <div class="guu-item-label" style="color:#000;">
+			<ons-row>
+写点字儿放这儿...
+    </ons-row>
+        </div>
+      </ons-carousel-item>
+      <ons-carousel-item style="background-color: #fff;">
+        <div class="guu-item-label">
+<!--        	
+<svg ng-attr-height="{{graph.height}}" ng-attr-width="{{graph.width}}">  
+    <circle ng-repeat="circle in circles" 
+        ng-attr-cx="{{circle.x}}" 
+        ng-attr-cy="{{circle.y}}" 
+        ng-attr-r= "{{circle.r}}">
+    </circle>
+-->    
+    <text ng-repeat="text in texts"  ng-attr-x="{{text.x}}" ng-attr-y="{{text.y}}"  ng-attr-fill="{{text.fill}}"> {{text.txt}} </text>
+</svg>  
+
+  
+       	</div>
+      </ons-carousel-item>
+ 
+<!--     
+      <ons-carousel-item style="background-color: #D38312;">
+        <div class="guu-item-label">ORANGE</div>
+      </ons-carousel-item>
+-->
+      <ons-carousel-cover>
+      	<div class="cover-label"></div>
+      </ons-carousel-cover>
+
+    </ons-carousel>
+
+<!--
+    <ons-bottom-toolbar>
+      <ons-toolbar-button style="float:right" ng-click="carousel.next()">Next</ons-toolbar-button>
+      <ons-toolbar-button style="float:left" ng-click="carousel.prev()">Prev</ons-toolbar-button>
+    </ons-bottom-toolbar>
+-->
+</ons-page>
+

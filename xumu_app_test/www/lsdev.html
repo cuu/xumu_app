@@ -1,0 +1,33 @@
+<ons-page ng-controller="lsdev_ctrl">
+<ons-toolbar>
+	     <div class="left">
+     	<ons-back-button></ons-back-button> 
+     	</div>
+  <div class="center">List all device</div>
+</ons-toolbar>
+
+<!--
+[{"name":"air condition","devs":[{"brand":"name","type":1},...]},
+{"name":"hudimiter","devs":[{"brand":"xxxx","type":?},....]}]
+-->
+	
+	<ons-list ng-repeat="item in devices  track by $index">
+  	<ons-list-header>{{item.name}}</ons-list-header>
+  	
+  	<ons-list-item ng-repeat="dev in item.devs"  ng-click="dev_basic_control(dev);" modifier="chevron" >
+  		
+         <ons-carousel style="height: 44px; width: 100%" swipeable initial-index="1" auto-scroll>
+          <ons-carousel-item>
+            <a href="#" ng-click="del_dev(item.name, dev,$index)" >Delete</a>
+          </ons-carousel-item>
+          <ons-carousel-item >
+           {{dev.brand}}#{{dev.type}}
+           <label ng-if="dev.port!=undefined">On P{{dev.port.P}}{{dev.port.I}}</label>
+          </ons-carousel-item>
+        </ons-carousel>
+        
+  	</ons-list-item>
+	</ons-list>
+
+
+</ons-page>

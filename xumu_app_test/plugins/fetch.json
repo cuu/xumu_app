@@ -1,0 +1,34 @@
+{
+    "cordova-plugin-whitelist": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-whitelist@1"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "edu.uic.travelmidwest.cordova.udptransmit": {
+        "source": {
+            "type": "local",
+            "path": "/media/sda1/home/cuu/Downloads/cordova-plugin-uic-udp"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "com.example.hello": {
+        "source": {
+            "type": "local",
+            "path": "/media/sda1/home/cuu/Downloads/cordova-plugin-hello"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "guu.cordova.udpserver": {
+        "source": {
+            "type": "local",
+            "path": "/media/sda1/home/cuu/Downloads/cordova-plugin-guu-udp-server"
+        },
+        "is_top_level": true,
+        "variables": {}
+    }
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="guu.cordova.udpserver" version="0.0.1">
+	
+	<!-- Metadata ================================================================== -->
+
+    <name>UDPServer</name>
+    <description>UDP Server plugin for cordova</description>
+    <license>Apache 2.0</license>
+    <keywords>UDP,udp,server</keywords>
+	
+    <!-- The common JavaScript file for all mobile platforms ======================= -->
+
+	<js-module src="www/udpserver.js" name="udpserver">
+		<merges target="udpserver"/>
+    </js-module>
+	
+	<!-- iOS-specific Objective-C source code ====================================== -->
+
+	<!--
+	<platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="UDPServer">
+                <param name="ios-package" value="UDPServer"/>
+            </feature>
+        </config-file>
+        <header-file src="src/ios/UDPServer.h" />
+        <source-file src="src/ios/UDPServer.m" />
+	</platform>
+	-->
+
+	<!-- Android-specific Java source code ========================================= -->
+	
+	<platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <!-- This is the name used for service name in cordova.exec -->
+            <feature name="UDPServer" >
+                <!-- This tells cordova which java class to load for this plugin -->
+                <param name="android-package" value="guu.udpserver.UDPServer"/>
+            </feature>
+        </config-file>
+		<source-file src="src/android/UDPServer.java" target-dir="src/guu/udpserver/" />
+    </platform>
+
+	<!-- =========================================================================== -->
+
+</plugin>

@@ -1,0 +1,23 @@
+      <ons-page modifier="menu-page" ng-controller="menu_controller">
+      	
+        <ons-toolbar >
+        	<div class="left">
+        		<ons-back-button></ons-back-button>
+        	</div>
+        		
+          <div class="right">
+            <ons-toolbar-button class="menu-close" ng-click="myApp.navi.popPage('menu.html')">
+              <ons-icon style="font-size:36px;" icon="ion-android-add" ></ons-icon>
+            </ons-toolbar-button>
+          </div>
+        </ons-toolbar>
+
+			<ons-list>
+				<ons-list-item ng-click="set_room(0);" modifier="chevron">ROOM 0</ons-list-item>
+				<ons-list-item ng-click="set_room(1);" modifier="chevron">ROOM 1</ons-list-item>
+			</ons-list>	
+
+        <br>
+			
+
+      </ons-page>
