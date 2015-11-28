@@ -1,0 +1,37 @@
+sleep 10
+cd /usr/share/
+
+newlisp create_hmac.lsp &
+
+sleep 2
+
+
+#screen -m -d -S test &
+#sleep 2
+#screen -S test -x -X screen ./epoll_log_issue 9001  /var/log/zigbee.log 
+#sleep 2
+#screen -S test -x -X screen newlisp kvdb.lsp -c -d /tmp/mysocket 
+#sleep 2
+#screen -S test -x -X screen newlisp serial_to_net.lsp  
+#sleep 2
+#screen -S test -x -X screen newlisp epoll-example.lsp 
+#sleep 2
+#screen -S test -x -X screen newlisp timer_event.lsp
+
+#new version
+stty -F /dev/ttyATH0 raw speed 38400
+socat unix-listen:/tmp/ath0,reuseaddr,fork file:/dev/ttyATH0,nonblock,echo=0,raw,waitlock=/var/run/ttyATH0.lock &
+
+cd /usr/share/xumu 
+screen -m -d -S xumu &
+sleep 2
+
+screen -S xumu -x -X screen newlisp udp_broadcast_selfip.lsp
+sleep 3
+screen -S xumu -x -X screen ./socat_stdio.sh
+sleep 2
+screen -S xumu -x -X screen newlisp  tcp_xumu_relay.lsp
+sleep 2
+screen -S xumu -x -X screen newlisp  udp_xumu_relay.lsp
+
+

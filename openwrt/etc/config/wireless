@@ -1,0 +1,23 @@
+
+config wifi-device 'radio0'
+	option type 'mac80211'
+	option macaddr '00:23:cd:00:0a:eb'
+	option hwmode '11ng'
+	option htmode 'HT20'
+	list ht_capab 'SHORT-GI-20'
+	list ht_capab 'SHORT-GI-40'
+	list ht_capab 'RX-STBC1'
+	list ht_capab 'DSSS_CCK-40'
+	option txpower '27'
+	option country 'US'
+	option channel '10'
+
+config wifi-iface
+	option device 'radio0'
+	option mode 'ap'
+	option ssid 'IDunicom_xumu_box'
+	option network 'wwan_dhcp'
+	option encryption 'wep-open'
+	option key '1'
+	option key1 's:12345'
+

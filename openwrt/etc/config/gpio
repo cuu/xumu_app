@@ -1,0 +1,27 @@
+config remote
+	option enable 1
+
+config gpiod 'Gpio0'
+
+config gpiod 'Gpio1'
+
+config gpiod 'Gpio14'
+
+config gpiod 'Gpio16'
+
+config gpiod 'Gpio18'
+
+config gpiod 'Gpio19'
+
+config gpiod 'Gpio20'
+
+config gpiod 'Gpio21'
+
+config gpiod 'Gpio22'
+
+config gpiod 'Gpio26'
+
+config relay 'Gpio23'
+
+config relay 'Gpio24'
+
